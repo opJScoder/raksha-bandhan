@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  background-color: #FFF7E8;
+  color: #3B241C;
+  overflow-x: hidden;
+}
+
+/* Subtle procedural grain overlay, used sparingly on festive scenes */
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+.paper-texture {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(212,168,79,0.06), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(110,23,55,0.05), transparent 45%);
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid #D4A84F;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbar styling to match the festive tone */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #FFF7E8; }
+::-webkit-scrollbar-thumb { background: #D4A84F; border-radius: 999px; }
