@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-// ADDED /api TO MATCH YOUR BACKEND ROUTER PREFIX
-const API_BASE = "http://localhost:8787/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api"; 
 
 async function handle(res) {
   if (!res.ok) {
