@@ -23,13 +23,13 @@ app.use(express.json({ limit: '1mb' }));
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api', giftsRouter);
 
-// Fallback error handler
-app.use((err, _req, res, _next) => {
-  console.error(err);
-  res.status(err.status || 500).json({ error: err.message || 'Unexpected server error.' });
-});
+// CRUCIAL FOR VERCEL: Only start the local listener if we are NOT in production
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 8787;
+  app.listen(port, () => {
+    console.log(`Raksha Bandhan backend listening on port ${port}`);
+  });
+}
 
-const port = process.env.PORT || 8787;
-app.listen(port, () => {
-  console.log(`Raksha Bandhan backend listening on port ${port}`);
-});
+// MANDATORY EXPORT STATEMENT: Hand the runtime over to Vercel's serverless handler
+export default app;
