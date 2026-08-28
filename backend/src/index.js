@@ -5,67 +5,59 @@ import { router as giftsRouter } from "./routes/gifts.js";
 
 const app = express();
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-  : [];
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
-// 1. ADDED THIS EXPLICIT MIDDLEWARE RIGHT AT THE TOP FOR VERCEL PREFLIGHTS
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+console.log("Allowed CORS origins:", allowedOrigins);
 
-  // Validate origin based on your logic
-  if (
-    !origin ||
-    allowedOrigins.includes(origin) ||
-    allowedOrigins.length === 0
-  ) {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-  }
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Requests without Origin (health checks, server-to-server, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
 
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With",
-  );
+    // If no ALLOWED_ORIGINS is configured, allow the request.
+    // This is useful while deploying/debugging.
+    if (allowedOrigins.length === 0) {
+      return callback(null, true);
+    }
 
-  // IMMEDIATELY terminate OPTIONS requests with a clean 204 status so Vercel doesn't block them
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  next();
-});
+    // Allow configured frontend origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-// 2. Keep standard cors fallback config below it
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin) ||
-        allowedOrigins.length === 0
-      ) {
-        cb(null, true);
-      } else {
-        cb(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  }),
-);
+    console.error("CORS blocked origin:", origin);
+    return callback(new Error(`CORS blocked: ${origin}`));
+  },
 
+  credentials: true,
+
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+// CORS
+app.use(cors(corsOptions));
+
+// JSON body parsing
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/health", (_req, res) => res.json({ ok: true }));
+// Health check
+app.get("/health", (_req, res) => {
+  res.json({ ok: true });
+});
+
+// API routes
 app.use("/api", giftsRouter);
 
 if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 8787;
+
   app.listen(port, () => {
     console.log(`Raksha Bandhan backend listening on port ${port}`);
   });
