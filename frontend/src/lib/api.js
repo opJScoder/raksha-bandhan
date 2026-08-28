@@ -1,8 +1,11 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+import { useState } from "react";
+
+// ADDED /api TO MATCH YOUR BACKEND ROUTER PREFIX
+const API_BASE = "http://localhost:8787/api";
 
 async function handle(res) {
   if (!res.ok) {
-    let message = 'Something went wrong. Please try again.';
+    let message = "Something went wrong. Please try again.";
     try {
       const body = await res.json();
       if (body?.error) message = body.error;
@@ -18,21 +21,24 @@ async function handle(res) {
 
 export async function uploadImage(file) {
   const form = new FormData();
-  form.append('image', file);
-  const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form });
-  return handle(res); // { url }
+  form.append("image", file);
+  // Resolves to: http://localhost:8787/api/upload
+  const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
+  return handle(res);
 }
 
 export async function createGift(payload) {
+  // Resolves to: http://localhost:8787/api/gifts
   const res = await fetch(`${API_BASE}/gifts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return handle(res); // { slug, token, url }
+  return handle(res);
 }
 
 export async function fetchGift(slug) {
+  // Resolves to: http://localhost:8787/api/gifts/...
   const res = await fetch(`${API_BASE}/gifts/${encodeURIComponent(slug)}`);
-  return handle(res); // full gift record
+  return handle(res);
 }

@@ -1,27 +1,37 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import WelcomeScene from '../scenes/WelcomeScene.jsx';
-import RoleSelectScene from '../scenes/RoleSelectScene.jsx';
-import GuideTrail from '../components/guide/GuideTrail.jsx';
-import { useAppState } from '../state/AppState.jsx';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import WelcomeScene from "../scenes/WelcomeScene.jsx";
+import RoleSelectScene from "../scenes/RoleSelectScene.jsx";
+import GuideTrail from "../components/guide/GuideTrail.jsx";
+import { useAppState } from "../state/AppState.jsx";
+import { useAudio } from "../components/audio/AudioManager.jsx";
 
 export default function HomePage() {
-  const [phase, setPhase] = useState('welcome'); // welcome | travelling | role
+  const [phase, setPhase] = useState("welcome"); // welcome | travelling | role
   const { dispatch } = useAppState();
   const navigate = useNavigate();
+  const { ensureStarted, play } = useAudio(); // Hooking into your audio controller
 
   return (
     <>
-      <GuideTrail active={phase === 'travelling'} onComplete={() => setPhase('role')} />
-      {phase === 'welcome' && (
+      <GuideTrail
+        active={phase === "travelling"}
+        onComplete={() => setPhase("role")}
+      />
+      {phase === "welcome" && (
         <WelcomeScene
           onBegin={() => {
-            dispatch({ type: 'RESET' });
-            setPhase('travelling');
+            ensureStarted(); // Unlocks browser audio policy via user gesture
+            play("chime"); // Optional festive transition sound effect
+
+            dispatch({ type: "RESET" });
+            setPhase("travelling");
           }}
         />
       )}
-      {phase === 'role' && <RoleSelectScene onSelect={(role) => navigate(`/create/${role}`)} />}
+      {phase === "role" && (
+        <RoleSelectScene onSelect={(role) => navigate(`/create/${role}`)} />
+      )}
     </>
   );
 }
