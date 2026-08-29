@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import Envelope from '../components/envelope/Envelope.jsx';
-import Button from '../components/ui/Button.jsx';
-import { uploadImage, createGift } from '../lib/api.js';
+import { useEffect, useRef, useState } from "react";
+import Envelope from "../components/envelope/Envelope.jsx";
+import Button from "../components/ui/Button.jsx";
+import { useAudio } from "../components/audio/AudioManager.jsx";
+import { uploadImage, createGift } from "../lib/api.js";
 
 const wishFor = (role) =>
-  role === 'brother' ? 'A rakhi, and a lifetime of ribbing.' : 'A gift, and a lifetime of gratitude.';
+  role === "brother"
+    ? "A rakhi, and a lifetime of ribbing."
+    : "A gift, and a lifetime of gratitude.";
 
 export default function SendStep({ state, onDone }) {
   const [envelopeFinished, setEnvelopeFinished] = useState(false);
-  const [apiState, setApiState] = useState('pending'); // pending | success | error
+  const [apiState, setApiState] = useState("pending"); // pending | success | error
   const [result, setResult] = useState(null);
+  const { play } = useAudio();
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -34,8 +38,16 @@ export default function SendStep({ state, onDone }) {
           role: state.role,
           senderName: state.senderName,
           recipientName: state.recipientName,
-          giftType: state.role === 'brother' ? state.gift.type : state.rakhiSent ? 'rakhi' : null,
-          giftAmount: state.role === 'brother' && state.gift.type === 'amount' ? Number(state.gift.amount) : null,
+          giftType:
+            state.role === "brother"
+              ? state.gift.type
+              : state.rakhiSent
+                ? "rakhi"
+                : null,
+          giftAmount:
+            state.role === "brother" && state.gift.type === "amount"
+              ? Number(state.gift.amount)
+              : null,
           giftImageUrl,
           memoryImageUrl,
           parentSlug: state.parentSlug || null,
@@ -43,29 +55,39 @@ export default function SendStep({ state, onDone }) {
 
         const created = await createGift(payload);
         setResult(created);
-        setApiState('success');
+        setApiState("success");
       } catch (err) {
         console.error(err);
-        setApiState('error');
+        setApiState("error");
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (envelopeFinished && apiState === 'success') {
+    if (envelopeFinished && apiState === "success") {
       onDone(result);
     }
   }, [envelopeFinished, apiState, result, onDone]);
 
-  if (apiState === 'error') {
+  if (apiState === "error") {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-ivory px-6 text-center">
-        <p className="font-display text-2xl text-wine">The envelope slipped on its way out.</p>
-        <p className="max-w-sm font-body text-ink/60">
-          Something interrupted the send — check your connection and let's try again.
+        <p className="font-display text-2xl text-wine">
+          The envelope slipped on its way out.
         </p>
-        <Button onClick={() => window.location.reload()}>Try again</Button>
+        <p className="max-w-sm font-body text-ink/60">
+          Something interrupted the send — check your connection and let's try
+          again.
+        </p>
+        <Button
+          onClick={() => {
+            play("bell");
+            window.location.reload();
+          }}
+        >
+          Try again
+        </Button>
       </div>
     );
   }
@@ -78,8 +100,10 @@ export default function SendStep({ state, onDone }) {
         wish={wishFor(state.role)}
         onComplete={() => setEnvelopeFinished(true)}
       />
-      {envelopeFinished && apiState === 'pending' && (
-        <p className="mt-6 font-body text-sm text-ink/50">Sealing the details…</p>
+      {envelopeFinished && apiState === "pending" && (
+        <p className="mt-6 font-body text-sm text-ink/50">
+          Sealing the details…
+        </p>
       )}
     </div>
   );

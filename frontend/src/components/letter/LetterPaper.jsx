@@ -1,13 +1,31 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
-export default function LetterPaper({ children }) {
+export default function LetterPaper({
+  children,
+  rolling = false,
+  className = "",
+}) {
   return (
     <motion.div
       initial={{ scaleY: 0.08, opacity: 0.4 }}
-      animate={{ scaleY: 1, opacity: 1 }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-      style={{ transformOrigin: 'top center' }}
-      className="relative mx-auto w-full max-w-xl"
+      animate={
+        rolling
+          ? {
+              y: 180,
+              scaleY: 0.72,
+              rotateX: 70,
+              opacity: 1,
+            }
+          : {
+              y: 0,
+              scaleY: 1,
+              rotateX: 0,
+              opacity: 1,
+            }
+      }
+      transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+      style={{ transformOrigin: "top center", transformStyle: "preserve-3d" }}
+      className={`relative mx-auto w-full max-w-xl ${className}`}
     >
       <div className="paper-texture relative rounded-[3px] border border-gold/30 bg-ivory px-6 py-8 shadow-paper sm:px-10 sm:py-12">
         {/* torn / deckled top edge, drawn once rather than a generic rounded card */}

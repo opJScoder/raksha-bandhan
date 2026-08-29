@@ -4,7 +4,7 @@ export default function PenIcon({ size = 26 }) {
       width={size}
       height={size}
       viewBox="0 0 40 40"
-      style={{ transform: 'rotate(45deg) translate(-2px, -18px)' }}
+      style={{ transform: "rotate(45deg) translate(-2px, -18px)" }}
     >
       <defs>
         <linearGradient id="penBody" x1="0" y1="0" x2="1" y2="1">

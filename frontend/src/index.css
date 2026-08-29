@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .clip-envelope-flap {
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  }
+  .clip-envelope-pocket {
+    clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+  .perspective-1200 {
+    perspective: 1200px;
+  }
+}
+
+
 :root {
   color-scheme: light;
 }

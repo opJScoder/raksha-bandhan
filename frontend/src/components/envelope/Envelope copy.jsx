@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useAudio } from "../audio/AudioManager.jsx";
@@ -11,21 +11,24 @@ const foldStages = [
   "right",
   "bottom",
   "left",
-  "flip",
   "stamp",
+  "flip",
   "write",
   "complete",
 ];
+
+
+
 
 function EnvelopePanel({ side, stage }) {
   const closed = foldStages.indexOf(stage) >= foldStages.indexOf(side);
   const positions = {
     top: {
-      position: { left: "18%", top: "-13.97%", width: "64%", height: "32%" },
+      position: { left: "18%", top: "-42%", width: "64%", height: "64%" },
       clipPath: "polygon(50% 0, 100% 100%, 0 100%)",
       origin: "50% 100%",
       openRotation: { rotateX: 0 },
-      closedRotation: { rotateX: -180 },
+      closedRotation: { rotateX: 180 },
     },
     right: {
       position: { left: "82%", top: "18%", width: "32%", height: "64%" },
@@ -35,11 +38,11 @@ function EnvelopePanel({ side, stage }) {
       closedRotation: { rotateY: -180 },
     },
     bottom: {
-      position: { left: "18%", top: "82%", width: "64%", height: "32%" },
+      position: { left: "18%", top: "78%", width: "64%", height: "64%" },
       clipPath: "polygon(0 0, 100% 0, 50% 100%)",
       origin: "50% 0%",
       openRotation: { rotateX: 0 },
-      closedRotation: { rotateX: 180 },
+      closedRotation: { rotateX: -180 },
     },
     left: {
       position: { left: "-14%", top: "18%", width: "32%", height: "64%" },
@@ -61,7 +64,7 @@ function EnvelopePanel({ side, stage }) {
         clipPath: positions.clipPath,
         transformOrigin: positions.origin,
         transformStyle: "preserve-3d",
-        background: "#6e1737",
+        background: "linear-gradient(145deg, #7c2046, #6e1737)",
         borderColor: "rgba(212, 168, 79, 0.42)",
       }}
     />
@@ -73,8 +76,8 @@ function AddressSide({ senderName, recipientName, stage }) {
   const stampVisible = foldStages.indexOf(stage) >= foldStages.indexOf("stamp");
 
   return (
-    <div className="absolute left-[18%] top-[18%] h-[64%] w-[64%] overflow-hidden  border border-gold/50 bg-wine-dark p-5 text-left shadow-2xl">
-      <div className="pointer-events-none absolute inset-2 rounded-[6px] border border-gold/50" />
+    <div className="absolute left-[18%] top-[18%] h-[64%] w-[64%] overflow-hidden rounded-[10px] border border-gold/50 bg-wine-dark p-5 text-left shadow-2xl">
+      <div className="pointer-events-none absolute inset-2 rounded-[6px] border border-gold/15" />
       <motion.div
         initial={{ opacity: 0, scale: 0.7, rotate: -8 }}
         animate={{
@@ -85,7 +88,7 @@ function AddressSide({ senderName, recipientName, stage }) {
         transition={{ duration: 0.55 }}
         className="absolute right-4 top-4 rounded-[3px] border border-gold/40 bg-wine-light/60 px-3 py-2 text-center"
       >
-        <div className="font-display text-[12px] uppercase tracking-[0.32em] text-gold-light">
+        <div className="font-display text-[8px] uppercase tracking-[0.32em] text-gold-light">
           Rakhi
         </div>
         <div className="font-display text-[7px] uppercase tracking-[0.25em] text-gold-light/80">
@@ -95,7 +98,7 @@ function AddressSide({ senderName, recipientName, stage }) {
 
       <div className="absolute bottom-6 left-6 flex flex-col gap-4">
         <div>
-          <div className="font-display text-[10px] uppercase tracking-[0.28em] text-gold/90">
+          <div className="font-display text-[9px] uppercase tracking-[0.28em] text-gold/55">
             To:
           </div>
           <motion.div
@@ -110,7 +113,7 @@ function AddressSide({ senderName, recipientName, stage }) {
           </motion.div>
         </div>
         <div>
-          <div className="font-display text-[10px] uppercase tracking-[0.28em] text-gold/90">
+          <div className="font-display text-[9px] uppercase tracking-[0.28em] text-gold/55">
             From:
           </div>
           <motion.div
@@ -131,12 +134,12 @@ function AddressSide({ senderName, recipientName, stage }) {
           <motion.div
             initial={{ opacity: 0, x: -12, y: 20 }}
             animate={{
-              opacity: [0, 1, 1, 1, 1, 0],
-              x: [-10, 25, -10, 40, 60, 70],
-              y: [0, -5, 50, 52, 48, 50],
+              opacity: [0, 1, 1, 0],
+              x: [-12, 4, 25, 38],
+              y: [20, 5, 28, 38],
             }}
-            transition={{ duration: 2.3, ease: "linear" }}
-            className="pointer-events-none absolute top-[50%] text-gold-light"
+            transition={{ duration: 2.5, ease: "linear" }}
+            className="pointer-events-none absolute left-[24%] top-[48%] text-gold-light"
           >
             <svg
               viewBox="0 0 24 24"
@@ -167,77 +170,63 @@ export default function Envelope({
 }) {
   const [stage, setStage] = useState("open");
   const { play } = useAudio();
-  const playRef = useRef(play);
 
-  useEffect(() => {
-    playRef.current = play;
-  }, [play]);
+//   to remove
+  const [replayKey, setReplayKey] = useState(0);
 
   useEffect(() => {
     if (!active) return undefined;
 
     setStage("open");
-
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousBodyOverflow = document.body.style.overflow;
-
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
 
     const timers = [
       setTimeout(() => {
         setStage("top");
-        playRef.current("paper");
+        play("paper");
       }, 900),
-
       setTimeout(() => {
         setStage("right");
-        playRef.current("paper");
+        play("paper");
       }, 2100),
-
       setTimeout(() => {
         setStage("bottom");
-        playRef.current("paper");
+        play("paper");
       }, 3300),
-
       setTimeout(() => {
         setStage("left");
-        playRef.current("paper");
+        play("paper");
       }, 4500),
-
-      setTimeout(() => {
-        setStage("flip");
-        playRef.current("paper");
-      }, 5700),
-
       setTimeout(() => {
         setStage("stamp");
-        playRef.current("bell");
+        play("bell");
+      }, 5700),
+      setTimeout(() => {
+        setStage("flip");
+        play("paper");
       }, 6900),
-
-      setTimeout(() => {
-        setStage("write");
-      }, 8000),
-
-      setTimeout(() => {
-        setStage("complete");
-      }, 11000),
+      setTimeout(() => setStage("write"), 8200),
+      setTimeout(() => setStage("complete"), 11200),
     ];
 
     return () => {
       timers.forEach(clearTimeout);
-
       document.documentElement.style.overflow = previousHtmlOverflow;
-
       document.body.style.overflow = previousBodyOverflow;
     };
   }, [active]);
 
+
+  const handleReplay = () => {
+    setReplayKey((key) => key + 1);
+  };
+
+
   const isFlipped =
-    stage === "flip" ||
-    stage === "stamp" ||
-    stage === "write" ||
-    stage === "complete";
+    stage === "flip" || stage === "write" || stage === "complete";
 
   return (
     <div className="relative flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-6 py-6 select-none">
@@ -251,14 +240,14 @@ export default function Envelope({
         <DiyaLayer count={5} />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-[560px] items-center justify-center px-2 [perspective:1400px]">
+      <div className="relative z-10 flex h-[520px] w-full max-w-[560px] items-center justify-center [perspective:1400px]">
         <motion.div
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
           className="relative flex-none"
           style={{
             width: "min(86vw, 560px)",
-            aspectRatio: "560 / 380",
+            height: "380px",
             transformStyle: "preserve-3d",
           }}
         >
@@ -269,17 +258,14 @@ export default function Envelope({
               backfaceVisibility: "hidden",
             }}
           >
-            <div className="absolute left-[18%] top-[18%] h-[64%] w-[64%] bg-wine shadow-2xl" />
+            <div className="absolute left-[18%] top-[18%] h-[64%] w-[64%] rounded-[10px] border border-gold/40 bg-wine shadow-2xl" />
             <EnvelopePanel side="top" stage={stage} />
             <EnvelopePanel side="right" stage={stage} />
             <EnvelopePanel side="bottom" stage={stage} />
             <EnvelopePanel side="left" stage={stage} />
-
-            <div className="absolute left-[25%] top-[28%] z-9 h-[44%] w-[50%] rounded-[3px] border bg-ivory p-3 shadow-[0_14px_25px_rgba(54,21,30,0.2)]">
-              <p className="absolute inset-0 flex items-center justify-center font-hand text-2xl text-wine/70">
-                Your Letter
-              </p>
+            <div className="absolute left-[25%] top-[28%] z-20 h-[44%] w-[50%] rounded-[3px] border border-gold/30 bg-ivory p-3 shadow-[0_14px_25px_rgba(54,21,30,0.2)]">
               <div className="absolute inset-2 rounded-[2px] border border-gold/10" />
+              <div className="absolute inset-x-4 top-1/2 border-t border-dashed border-ink/10" />
             </div>
           </div>
 
@@ -317,7 +303,13 @@ export default function Envelope({
             >
               Back
             </button>
-
+            <button
+              type="button"
+              onClick={handleReplay}
+              className="px-5 py-2.5 font-body text-sm text-wine/70 hover:text-wine"
+            >
+              Replay
+            </button>
             <button
               type="button"
               onClick={() => {
